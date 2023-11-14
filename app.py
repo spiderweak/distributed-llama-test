@@ -1,6 +1,7 @@
 # Import necessary libraries
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, request, jsonify
 from custom_processing import process_data
+from pyspark.sql import SparkSession
 
 import logging
 
@@ -11,28 +12,38 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
-questions_data = [
-    ("What are the days of the week? And where does their name come from?", "days_of_week"),
-    ("What are the months of the year? And where does their name come from?", "months_of_year"),
-    ("What are the four seasons? When is the longest day of the year? When is the shortest day of the year? When is the equinox?", "seasons")
-]
-
-
+@app.route('/')
 def index():
-    logger.info("Index page requested")
-    return render_template('index.html', questions=questions_data)
+    return render_template('question_form.html')
+
 
 @app.errorhandler(500)
 def handle_500_error(e):
     logger.error(f"Server error: {e}")
     return "Internal Server Error", 500
 
-# This route will process the data and return the answers
-@app.route('/get_answers', methods=['GET'])
-def get_answers():
-    answers = process_data()
-    return jsonify(answers)
+
+@app.route('/submit_question', methods=['POST'])
+def submit_question():
+    # Extract question and category from the form
+    question = request.form.get('question')
+    category = request.form.get('category')
+
+    # Initialize Spark session
+    spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
+
+    # Call the Spark processing function with the question and category
+    answer_df = process_data(spark, [(question, category)])
+
+    # Convert the result to a dictionary (or any other format you prefer)
+    answer = answer_df.toPandas().to_dict(orient='records')
+
+    # Terminate the Spark session
+    spark.stop()
+
+    # Return the answer
+    return jsonify(answer)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

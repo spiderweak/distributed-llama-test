@@ -1,7 +1,8 @@
 # Import necessary libraries
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 import pandas as pd
 import re
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import pandas_udf
@@ -9,12 +10,20 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 
 import logging
 
-def process_data():
+# Define schemas
+question_schema = StructType([
+    StructField("question", StringType(), True),
+    StructField("category", StringType(), True)
+])
 
-    # Initialize Spark session
-    spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
+answer_schema = StructType([
+    StructField("answer", StringType(), True),
+    StructField("category", StringType(), True)
+])
 
-    def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
+
+
+def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
         """
         Apply function for Spark to call Llama model and get answers for questions.
 
@@ -72,3 +81,24 @@ def process_data():
             answers,
             columns=['answer', 'category']
         )
+
+def process_data(spark_session: SparkSession, questions_data: List[Tuple[str, str]]) -> pd.DataFrame:
+
+    questions_df = spark_session.createDataFrame(data=questions_data, schema=question_schema)
+
+    answers_df = llama2_answer_questions(questions_df.toPandas())
+
+    return answers_df
+
+
+questions_data = [
+    ("What are the days of the week? And where does their name come from?", "days_of_week"),
+    ("What are the months of the year? And where does their name come from?", "months_of_year"),
+    ("What are the four seasons? When is the longest day of the year? When is the shortest day of the year? When is the equinox?", "seasons")
+]
+
+# Example usage
+if __name__ == "__main__":
+    spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
+    answers = process_data(questions_data)
+    print(answers)
