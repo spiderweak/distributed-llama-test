@@ -10,9 +10,13 @@ import logging
 
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Initialize Spark session
 spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
-
+logger.info("Spark session started")
 
 def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -92,7 +96,13 @@ answer_schema = StructType([
 
 
 def index():
+    logger.info("Index page requested")
     return render_template('index.html', questions=questions_data)
+
+@app.errorhandler(500)
+def handle_500_error(e):
+    logger.error(f"Server error: {e}")
+    return "Internal Server Error", 500
 
 # This route will process the data and return the answers
 @app.route('/get_answers', methods=['GET'])
@@ -101,7 +111,7 @@ def get_answers():
     answers = (questions_df
                 .groupby('category')
                 .applyInPandas(llama2_answer_questions, schema=answer_schema)
-               )
+                )
 
     # Collecting DataFrame to a list of Python dictionaries
     answers_list = answers.collect()
