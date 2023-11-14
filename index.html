@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Llama Summarizer</title>
+</head>
+<body>
+    <h1>Llama Question Summarizer</h1>
+    <ul>
+        {% for question, category in questions %}
+            <li>{{ question }} (Category: {{ category }})</li>
+        {% endfor %}
+    </ul>
+    <button onclick="getAnswers()">Get Answers</button>
+    <div id="answers"></div>
+
+    <script>
+        function getAnswers() {
+            fetch('/get_answers')
+                .then(response => response.json())
+                .then(data => {
+                    const answersDiv = document.getElementById('answers');
+                    answersDiv.innerHTML = '';
+                    data.forEach(item => {
+                        const p = document.createElement('p');
+                        p.textContent = `Answer: ${item.answer}, Category: ${item.category}`;
+                        answersDiv.appendChild(p);
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
