@@ -162,44 +162,49 @@ def llama_2_categorize_questions(df: pd.DataFrame) -> pd.DataFrame:
             logging.error(f"Error when calling Llama model: {e}")
             answer_text = "Error in processing"
         # Append the answer and category to the answers list
-        answers.append((answer_text, category))
+        output=parse_questions(answer_text)
+        answers.append(output)
 
-    output=parse_questions(answers)
-
-    print(output)
+    print(answers)
 
     # Return the DataFrame with answers.
     return pd.DataFrame(
-            output,
+            answers,
             columns=['question', 'category']
         )
 
 import re
 
 def parse_questions(text):
-    # Regex patterns
     category_pattern = re.compile(r'^\s*[Cc]ategory:\s*(.+)\s*$')
     question_pattern = re.compile(r'^\s*[Qq]uestion(?: \d+)?:\s*(.+)\s*$')
 
     parsed_data = []
-    current_category = None
+    last_category = None
+    last_question = None
 
     for line in text.split('\n'):
-        # Check for category line
         category_match = category_pattern.match(line)
-        if category_match:
-            current_category = category_match.group(1).strip()
-            continue
-
-        # Check for question line
         question_match = question_pattern.match(line)
-        if question_match and current_category:
-            parsed_data.append({
-                "question": question_match.group(1).strip(),
-                "category": current_category
-            })
+
+        if category_match:
+            # If a new category is found and a question is already stored, pair them
+            if last_question:
+                parsed_data.append((last_question, category_match.group(1).strip()))
+                last_question = None  # Reset last_question
+            else:
+                last_category = category_match.group(1).strip()
+
+        elif question_match:
+            # If a new question is found and a category is already stored, pair them
+            if last_category:
+                parsed_data.append((question_match.group(1).strip(), last_category))
+                last_category = None  # Reset last_category
+            else:
+                last_question = question_match.group(1).strip()
 
     return parsed_data
+
 
 questions_data = [
     ("What are the days of the week? And where does their name come from?", None),
