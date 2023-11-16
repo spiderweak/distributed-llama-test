@@ -1,5 +1,4 @@
 # Import necessary libraries
-from flask import Flask, render_template, jsonify
 from typing import Any, Tuple
 import pandas as pd
 import re
@@ -7,15 +6,22 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import pandas_udf
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
 import logging
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 # Initialize Spark session
-spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
+spark = SparkSession.builder \
+        .appName("LlamaOracle") \
+        .getOrCreate()
+#        .master("spark://10.11.0.201:7077") \
+#        .config("spark.executor.memory", "8g") \
+#        .config("spark.executor.cores", "2") \
+#        .config("spark.driver.memory" , "2g") \
+
 logger.info("Spark session started")
 
 def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
@@ -94,7 +100,7 @@ answer_schema = StructType([
     StructField("category", StringType(), True)
 ])
 
-
+@app.route('/')
 def index():
     logger.info("Index page requested")
     return render_template('index.html', questions=questions_data)
@@ -120,5 +126,7 @@ def get_answers():
     # Return as JSON
     return jsonify(answers_dict)
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
