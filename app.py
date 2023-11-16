@@ -35,21 +35,17 @@ def submit_question():
     # Call a function to categorize questions (this function needs to be implemented)
     categorized_questions = categorize_questions(spark, [(questions, None)])
 
-    questions_list = categorized_questions.collect()
-    questions_dict = [row.asDict() for row in questions_list]
-
-    """
     # Call the Spark processing function with the question
     answer_df = process_data(spark, categorized_questions)
 
     answers_list = answer_df.collect()
     answers_dict = [row.asDict() for row in answers_list]
-    """
+
     # Terminate the Spark session
     spark.stop()
 
     # Return the answer
-    return jsonify(questions_dict)
+    return jsonify(answers_dict)
 
 
 if __name__ == '__main__':

@@ -102,7 +102,7 @@ def categorize_questions(spark_session: SparkSession, questions_data: List[Tuple
 
     return answers
 
-def llama_2_categorize_questions(df: pd.DataFrame) -> pd.DataFrame:
+def llama_2_categorize_questions(df: pd.DataFrame) -> List[Tuple[str, Optional[str]]]:
 
     from llama_cpp import Llama
     import os
@@ -165,13 +165,8 @@ def llama_2_categorize_questions(df: pd.DataFrame) -> pd.DataFrame:
         output=parse_questions(answer_text)
         answers.append(output)
 
-    print(answers)
-
     # Return the DataFrame with answers.
-    return pd.DataFrame(
-            answers,
-            columns=['question', 'category']
-        )
+    return answers
 
 import re
 
