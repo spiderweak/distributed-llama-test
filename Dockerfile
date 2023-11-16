@@ -14,7 +14,7 @@ WORKDIR /app
 # Copy only the requirements file, to cache the installed dependencies
 COPY requirements.txt ./
 
-COPY index.html /app/templates/index.html
+COPY templates/question_form.html /app/templates/question_form.html
 
 # Copy the entrypoint script into the container
 COPY entrypoint.sh /app/entrypoint.sh
@@ -26,7 +26,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN chmod +x /app/entrypoint.sh
 
 # Copy the rest of the application
-COPY llama2_test.py /app/llama2_test.py
+COPY app.py /app/app.py
+COPY custom_processing.py /app/custom_processing.py
 
 COPY llama-2-7b-chat.Q6_K.gguf /app/models/llama-2-7b-chat.Q6_K.gguf
 
@@ -37,5 +38,5 @@ ENV LLAMA_MODEL_PATH="/app/models/llama-2-7b-chat.Q6_K.gguf"
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Set the command to run the application
-CMD ["python3", "./llama2_test_calendar.py"]
+CMD ["python3", "./app.py"]
 

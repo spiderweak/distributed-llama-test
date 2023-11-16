@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 @app.route('/')
 def index():
+    logger.info("Index page requested")
     return render_template('question_form.html')
 
 
@@ -46,4 +47,4 @@ def submit_question():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
