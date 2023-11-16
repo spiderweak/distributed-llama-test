@@ -37,5 +37,5 @@ ENV LLAMA_MODEL_PATH="/app/models/llama-2-7b-chat.Q6_K.gguf"
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Set the command to run the application
-CMD ["python3", "./llama2_test.py"]
+CMD ["python3", "./llama2_test_calendar.py"]
 
