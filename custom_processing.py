@@ -1,5 +1,5 @@
 # Import necessary libraries
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional
 import pandas as pd
 import re
 import os
@@ -13,20 +13,20 @@ import logging
 # Define schemas
 question_schema = StructType([
     StructField("question", StringType(), True),
+    StructField("category", StringType(), True)
 ])
 
 answer_schema = StructType([
     StructField("answer", StringType(), True),
+    StructField("category", StringType(), True)
 ])
-
-
 
 def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
         """
         Apply function for Spark to call Llama model and get answers for questions.
 
         Args:
-            df: Pandas DataFrame with columns 'question'
+            df: Pandas DataFrame with columns 'question' and 'category'.
 
         Returns:
             DataFrame with the Llama model's responses.
@@ -59,6 +59,7 @@ def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
         answers = []
         for index, row in df.iterrows():
             question_text = row['question']
+            category = row['category']
             prompt = 'Please answer the following questions in a single sentence (less than 100 words): ' + question_text
             prompt = template.replace('{INSERT_PROMPT_HERE}', prompt)
 
@@ -70,31 +71,140 @@ def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
                 # Log the error and return an empty DataFrame or handle it as needed.
                 logging.error(f"Error when calling Llama model: {e}")
                 answer_text = "Error in processing"
-            # Append the answer to the answers list
-            answers.append((answer_text))
+            # Append the answer and category to the answers list
+            answers.append((answer_text, category))
 
         # Return the DataFrame with answers.
         return pd.DataFrame(
             answers,
-            columns=['answer']
+            columns=['answer', 'category']
         )
 
-def process_data(spark_session: SparkSession, questions_data: List[str]):
+def process_data(spark_session: SparkSession, questions_data: List[Tuple[str, Optional[str]]]):
 
     questions_df = spark_session.createDataFrame(data=questions_data, schema=question_schema)
 
-
     answers = (questions_df
+                .groupby('category')
                 .applyInPandas(llama2_answer_questions, schema=answer_schema)
                 )
 
     return answers
 
+def categorize_questions(spark_session: SparkSession, questions_data: List[Tuple[str, Optional[str]]]) -> List[Tuple[str, Optional[str]]]:
+
+    questions_df = spark_session.createDataFrame(data=questions_data, schema=question_schema)
+
+    answers = (questions_df
+                .groupby('category')
+                .applyInPandas(llama_2_categorize_questions, schema=question_schema)
+                )
+
+    return answers
+
+def llama_2_categorize_questions(df: pd.DataFrame) -> pd.DataFrame:
+
+    from llama_cpp import Llama
+    import os
+
+    # Configuration: Model path should be an environment variable.
+    model_path = os.getenv("LLAMA_MODEL_PATH")
+
+    llm = Llama(model_path=model_path, n_ctx=8192, n_batch=512)
+
+    # template for this model version, see:
+    # https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML#prompt-template-llama-2-chat
+    template = """
+    [INST] <<SYS>>
+    You are a helpful, respectful and honest assistant. 
+    Always answer as helpfully as possible, while being safe.
+
+    You will be asked a set of questions, I want you to split all 
+    the chunck of text into categories, and return the questions
+    list in a list of dictionary format as follow : 
+
+    [
+        {
+            question: <QUESTION_1_CONTENT>,
+            category: <QUESTION_1_CATEGORY>
+        },
+        {
+            question: <QUESTION_2_CONTENT>,
+            category: <QUESTION_2_CATEGORY>
+        },
+        {
+            question: <QUESTION_3_CONTENT>,
+            category: <QUESTION_3_CATEGORY>
+        },
+        ...
+    ]
+
+    You are free to choose the category of your choice based on the question asked, but please stick to a 1 word category.
+    <</SYS>>
+
+    {INSERT_PROMPT_HERE} [/INST]
+    """
+
+    # Process each of the provided rows
+    answers = []
+    for index, row in df.iterrows():
+        question_text = row['question']
+        category = row['category']
+        prompt = 'Here are the questions: ' + question_text
+        prompt = template.replace('{INSERT_PROMPT_HERE}', prompt)
+
+        try:
+            output = llm(prompt, max_tokens=2048, echo=False)
+            answer_text = output['choices'][0]['text']
+            print(answer_text)
+        except Exception as e:
+            # Log the error and return an empty DataFrame or handle it as needed.
+            logging.error(f"Error when calling Llama model: {e}")
+            answer_text = "Error in processing"
+        # Append the answer and category to the answers list
+        answers.append((answer_text, category))
+
+    output=parse_questions(answers)
+
+    print(output)
+
+    # Return the DataFrame with answers.
+    return pd.DataFrame(
+            output,
+            columns=['question', 'category']
+        )
+
+import re
+
+def parse_questions(text):
+    # Regex patterns
+    category_pattern = re.compile(r'^\s*[Cc]ategory:\s*(.+)\s*$')
+    question_pattern = re.compile(r'^\s*[Qq]uestion(?: \d+)?:\s*(.+)\s*$')
+
+    parsed_data = []
+    current_category = None
+
+    for line in text.split('\n'):
+        # Check for category line
+        category_match = category_pattern.match(line)
+        if category_match:
+            current_category = category_match.group(1).strip()
+            continue
+
+        # Check for question line
+        question_match = question_pattern.match(line)
+        if question_match and current_category:
+            parsed_data.append({
+                "question": question_match.group(1).strip(),
+                "category": current_category
+            })
+
+    return parsed_data
 
 questions_data = [
-    ("What are the days of the week? And where does their name come from?", "days_of_week"),
-    ("What are the months of the year? And where does their name come from?", "months_of_year"),
-    ("What are the four seasons? When is the longest day of the year? When is the shortest day of the year? When is the equinox?", "seasons")
+    ("What are the days of the week? And where does their name come from?", None),
+    ("What are the months of the year? And where does their name come from?", None),
+    ("What are the four seasons? When is the longest day of the year? When is the shortest day of the year? When is the equinox?", None)
 ]
 
 # Example usage
