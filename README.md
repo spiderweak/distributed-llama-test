@@ -1,5 +1,6 @@
 # Llama-test
 
+Carefull, if you are running this project on a Humanitas NDC, the key might have expired, please update a new key-pair (contact Antoine) or clone the repo in your own infrastructure to keep working on the project.
 
 
 ## Getting started
