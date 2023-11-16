@@ -13,12 +13,10 @@ import logging
 # Define schemas
 question_schema = StructType([
     StructField("question", StringType(), True),
-    StructField("category", StringType(), True)
 ])
 
 answer_schema = StructType([
     StructField("answer", StringType(), True),
-    StructField("category", StringType(), True)
 ])
 
 
@@ -28,7 +26,7 @@ def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
         Apply function for Spark to call Llama model and get answers for questions.
 
         Args:
-            df: Pandas DataFrame with columns 'question' and 'category'.
+            df: Pandas DataFrame with columns 'question'
 
         Returns:
             DataFrame with the Llama model's responses.
@@ -61,7 +59,6 @@ def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
         answers = []
         for index, row in df.iterrows():
             question_text = row['question']
-            question_category = row['category']
             prompt = 'Please answer the following questions in a single sentence (less than 100 words): ' + question_text
             prompt = template.replace('{INSERT_PROMPT_HERE}', prompt)
 
@@ -73,22 +70,25 @@ def llama2_answer_questions(df: pd.DataFrame) -> pd.DataFrame:
                 # Log the error and return an empty DataFrame or handle it as needed.
                 logging.error(f"Error when calling Llama model: {e}")
                 answer_text = "Error in processing"
-            # Append the answer and category to the answers list
-            answers.append((answer_text, question_category))
+            # Append the answer to the answers list
+            answers.append((answer_text))
 
         # Return the DataFrame with answers.
         return pd.DataFrame(
             answers,
-            columns=['answer', 'category']
+            columns=['answer']
         )
 
-def process_data(spark_session: SparkSession, questions_data: List[Tuple[str, str]]) -> pd.DataFrame:
+def process_data(spark_session: SparkSession, questions_data: List[str]):
 
     questions_df = spark_session.createDataFrame(data=questions_data, schema=question_schema)
 
-    answers_df = llama2_answer_questions(questions_df.toPandas())
 
-    return answers_df
+    answers = (questions_df
+                .applyInPandas(llama2_answer_questions, schema=answer_schema)
+                )
+
+    return answers
 
 
 questions_data = [

@@ -26,24 +26,23 @@ def handle_500_error(e):
 
 @app.route('/submit_question', methods=['POST'])
 def submit_question():
-    # Extract question and category from the form
+    # Extract question from the form
     question = request.form.get('question')
-    category = request.form.get('category')
 
     # Initialize Spark session
     spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
 
-    # Call the Spark processing function with the question and category
-    answer_df = process_data(spark, [(question, category)])
+    # Call the Spark processing function with the question
+    answer_df = process_data(spark, [question])
 
-    # Convert the result to a dictionary (or any other format you prefer)
-    answer = answer_df.toPandas().to_dict(orient='records')
+    answers_list = answer_df.collect()
+    answers_dict = [row.asDict() for row in answers_list]
 
     # Terminate the Spark session
     spark.stop()
 
     # Return the answer
-    return jsonify(answer)
+    return jsonify(answers_dict)
 
 
 if __name__ == '__main__':
