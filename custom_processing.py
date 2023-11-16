@@ -100,5 +100,5 @@ questions_data = [
 # Example usage
 if __name__ == "__main__":
     spark = SparkSession.builder.appName("LlamaOracle").getOrCreate()
-    answers = process_data(questions_data)
+    answers = process_data(spark, questions_data)
     print(answers)
