@@ -162,9 +162,9 @@
 
                             // Update the page with the table
                             $('#output').html(table);
-                            initDragAndDrop();
                             $('#loading-indicator').addClass('hidden'); // Hide the loading indicator
                             $('#add-row-btn').removeClass('hidden')
+                            initDragAndDrop();
                         },
                         error: function(error) {
                             console.log(error);
@@ -174,15 +174,16 @@
                 });
 
                 $('#add-row-btn').click(function() {
-                var newRow = '<tr>';
-                // Assuming each row has the same number of cells as the header
-                $('#output table thead th').each(function() {
-                    newRow += '<td class="border px-4 py-2 draggable">""</td>';
-                });
-                newRow += '</tr>';
+                    var newRow = '<tr>';
+                    // Assuming each row has the same number of cells as the header
+                    $('#output table thead th').each(function() {
+                        newRow += '<td class="border px-4 py-2 draggable"></td>';
+                    });
+                    newRow += '</tr>';
 
-                $('#output table tbody').append(newRow);
-            });
+                    $('#output table tbody').append(newRow);
+                    initDragAndDrop();
+                });
             });
         </script>
     </body>
