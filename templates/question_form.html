@@ -1,75 +1,121 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Ask Questions</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-6">
-        <h2 class="text-2xl font-semibold leading-tight text-gray-900">Ask Your Questions</h2>
-        <form id="question-form" method="post" action="/submit_question" class="mt-4">
-            <label for="questions" class="block text-sm font-medium text-gray-700">Enter your questions:</label>
-            <textarea id="questions" name="questions" rows="10" cols="50" class="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-            <input type="submit" id="submit-button" value="Submit" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        </form>
-        <div id="output" class="mt-6"></div>
-    </div>
+    <head>
+        <title>Ask Questions</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-gray-100">
+        <div class="container mx-auto p-6">
+            <h2 class="text-2xl font-semibold leading-tight text-gray-900">Ask Your Questions</h2>
+            <form id="question-form" method="post" action="/submit_question" class="mt-4">
+                <label for="questions" class="block text-sm font-medium text-gray-700">Enter your questions:</label>
+                <textarea id="questions" name="questions" rows="10" cols="50" class="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <input type="submit" id="submit-button" value="Submit" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            </form>
+            <div id="output" class="mt-6"></div>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script>
-        if (!window.jQuery) {
-            document.write('<script src="/static/jquery-3.7.1.min.js"><\/script>');
-        }
-    </script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script>
+            window.jQuery || document.write('<script src="/static/jquery-3.7.1.min.js"><\/script>');
+        </script>
 
-    <script>
-        $(document).ready(function(){
-            $('#submit-button').click(function(e){
-                e.preventDefault(); // Prevent default form submission
-                $.ajax({
-                    url: '/submit_question',
-                    type: 'POST',
-                    data: $('#question-form').serialize(), // Serialize form data
-                    success: function(response) {
-                        // Organize questions by category
-                        var categories = {};
-                        response.forEach(function(item) {
-                            if (!categories[item.category]) {
-                                categories[item.category] = [];
-                            }
-                            categories[item.category].push(item.question);
-                        });
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
 
-                        // Create table structure
-                        var table = '<table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
-                        for (var category in categories) {
-                            table += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">' + category + '</th>';
-                        }
-                        table += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+        <script>
+            window.jQuery.ui || document.write('<script src="/static/jquery-ui.min.js"><\/script>');
+        </script>
 
-                        // Find the maximum number of questions in any category
-                        var maxQuestions = Math.max(...Object.values(categories).map(questions => questions.length));
+        <script>
+            $(document).ready(function(){
+                $('#submit-button').click(function(e){
+                    e.preventDefault(); // Prevent default form submission
+                    $.ajax({
+                        url: '/submit_question',
+                        type: 'POST',
+                        data: $('#question-form').serialize(), // Serialize form data
+                        success: function(response) {
+                            // Organize questions by category
+                            var categories = {};
+                            response.forEach(function(item) {
+                                if (!categories[item.category]) {
+                                    categories[item.category] = [];
+                                }
+                                categories[item.category].push(item.question);
+                            });
 
-                        // Populate table with questions
-                        for (var i = 0; i < maxQuestions; i++) {
-                            table += '<tr>';
+                            // Create table structure
+                            var table = '<table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
                             for (var category in categories) {
-                                var question = categories[category][i] || ''; // Handle categories with fewer questions
-                                table += '<td>' + question + '</td>';
+                                table += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">' + category + '</th>';
                             }
-                            table += '</tr>';
-                        }
-                        table += '</tbody></table>';
+                            table += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
-                        // Update the page with the table
-                        $('#output').html(table);
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
+                            // Find the maximum number of questions in any category
+                            var maxQuestions = Math.max(...Object.values(categories).map(questions => questions.length));
+
+                            // Populate table with questions
+                            for (var i = 0; i < maxQuestions; i++) {
+                                table += '<tr id="row-' + i + '" class="draggable">';
+                                for (var category in categories) {
+                                    var question = categories[category][i] || '';// Handle categories with fewer questions
+                                    table += '<td>' + question + '</td>';
+                                }
+                                table += '</tr>';
+                            }
+                            table += '</tbody></table>';
+
+                            // Update the page with the table
+                            $('#output').html(table);
+                            $('td').draggable({
+                                helper: 'clone', // Creates a clone of the element being dragged
+                                revert: 'invalid', // Element returns to its original position if not dropped in a droppable
+                                cursor: 'move',
+                                containment: 'document'
+                            });
+                            $('td').droppable({
+                                drop: function(event, ui) {
+                                    var draggable = ui.draggable;
+                                    var droppable = $(this);
+                                    var dragPos = draggable.position();
+                                    var dropPos = droppable.position();
+
+                                    // Swap the contents of the draggable and droppable cells
+                                    draggable.css({
+                                        left: dropPos.left + 'px',
+                                        top: dropPos.top + 'px'
+                                    });
+
+                                    droppable.css({
+                                        left: dragPos.left + 'px',
+                                        top: dragPos.top + 'px'
+                                    });
+
+                                    draggable.swap(droppable);
+                                }
+                            });
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
                 });
             });
-        });
-    </script>
-</body>
+            // Swap function
+            jQuery.fn.swap = function(b) {
+                // Swap the contents of the cells
+                b = jQuery(b)[0];
+                var a = this[0];
+                var a2 = a.cloneNode(true);
+                var b2 = b.cloneNode(true);
+                var stack = this;
+
+                a.parentNode.replaceChild(b2, a);
+                b.parentNode.replaceChild(a2, b);
+
+                stack[0] = a2;
+                return this.pushStack(stack);
+            };
+        </script>
+    </body>
 </html>
