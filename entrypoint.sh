@@ -2,8 +2,8 @@
 set -e
 
 # Path to where the model will be stored
-MODEL_PATH="/app/models/llama-2-7b-chat.Q6_K.gguf"
-MODEL_URL="https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q6_K.gguf"
+MODEL_PATH="/app/models/zephyr-7b-beta.Q6_K.gguf"
+MODEL_URL="https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q6_K.gguf"
 
 # Check if the model file exists and download it if not
 if [ ! -f "$MODEL_PATH" ]; then

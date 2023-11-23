@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question Results</title>
+</head>
+<body>
+    <h2>Results</h2>
+    <ul>
+        {% for item in results %}
+            <li><b>Category:</b> {{ item.category }} <br> <b>Question:</b> {{ item.question }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Ask More Questions</a>
+</body>
+</html>

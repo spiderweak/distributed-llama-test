@@ -10,5 +10,26 @@
         <textarea id="questions" name="questions" rows="10" cols="50"></textarea><br><br>
         <input type="submit" value="Submit">
     </form>
+    <div id="output"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#submit-button').click(function(e){
+                e.preventDefault(); // Prevent default form submission
+                $.ajax({
+                    url: '/submit_question',
+                    type: 'POST',
+                    data: $('#question-form').serialize(), // Serialize form data
+                    success: function(response) {
+                        $('#output').html(JSON.stringify(response)); // Update the page with the response
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

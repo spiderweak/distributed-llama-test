@@ -29,10 +29,11 @@ RUN chmod +x /app/entrypoint.sh
 COPY app.py /app/app.py
 COPY custom_processing.py /app/custom_processing.py
 
-COPY llama-2-7b-chat.Q6_K.gguf /app/models/llama-2-7b-chat.Q6_K.gguf
+#COPY models/llama-2-7b-chat.Q6_K.gguf /app/models/llama-2-7b-chat.Q6_K.gguf
+COPY models/zephyr-7b-beta.Q6_K.gguf /app/models/zephyr-7b-beta.Q6_K.gguf
 
 # Define environment variable for the Llama model path
-ENV LLAMA_MODEL_PATH="/app/models/llama-2-7b-chat.Q6_K.gguf"
+ENV LLAMA_MODEL_PATH="/app/models/zephyr-7b-beta.Q6_K.gguf"
 
 # Set the script as the entry point
 ENTRYPOINT ["/app/entrypoint.sh"]

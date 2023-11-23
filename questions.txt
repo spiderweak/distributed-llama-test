@@ -1,0 +1,6 @@
+What is your name ?
+What is the color of Henri IV's horse ?
+What are the days of the week? And where does their name come from? What are the months of the year? And where does their name come from?
+Hello, can you help me with my debugging ?
+I'm working on you, the questions are asked in a Flask web page, can you help me with that ?
+Once the questions are asked, they are send to Zephyr using Spark, do you know this tech ?
