@@ -59,6 +59,32 @@
                 </div>
             </div>
 
+            <!-- Loading indicator -->
+            <div id="loading-indicator" class="hidden my-5 flex justify-center items-center">
+                <span class="loader"></span>
+                <style>
+                    .loader {
+                    width: 48px;
+                    height: 48px;
+                    border: 5px solid #000;
+                    border-bottom-color: #FF3D00;
+                    border-radius: 50%;
+                    display: inline-block;
+                    box-sizing: border-box;
+                    animation: rotation 1s linear infinite;
+                    }
+
+                    @keyframes rotation {
+                    0% {
+                        transform: rotate(0deg);
+                    }
+                    100% {
+                        transform: rotate(360deg);
+                    }
+                    }
+                </style>
+            </div>
+
             <div id="output" class="mt-6"></div>
         </div>
 
@@ -93,6 +119,8 @@
             $(document).ready(function(){
                 $('#submit-button').click(function(e){
                     e.preventDefault(); // Prevent default form submission
+                    $('#loading-indicator').removeClass('hidden'); // Show the loading indicator
+
                     $.ajax({
                         url: '/submit_question',
                         type: 'POST',
@@ -131,9 +159,11 @@
                             // Update the page with the table
                             $('#output').html(table);
                             initDragAndDrop();
+                            $('#loading-indicator').addClass('hidden'); // Hide the loading indicator
                         },
                         error: function(error) {
                             console.log(error);
+                            $('#loading-indicator').addClass('hidden'); // Hide the loading indicator
                         }
                     });
                 });
