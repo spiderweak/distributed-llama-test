@@ -30,6 +30,7 @@
     </head>
     <body class="bg-gray-100">
         <div class="container mx-auto p-6">
+            <!-- Page header -->
             <div class="flex items-center justify-center mb-6">
                 <img src="/static/logo.png" alt="Logo" class="h-8 mr-3"> <!-- Logo to the left of the title -->
                 <h1 class="text-3xl font-semibold leading-tight text-gray-900">Humanitas distributed LLM Processing</h1>
@@ -62,6 +63,7 @@
         </div>
 
         <script>
+            // Makes cells dragabble and droppable
             function initDragAndDrop() {
                 $('td').draggable({
                     helper: 'clone',
@@ -79,7 +81,7 @@
                 });
             }
 
-            // Swap function
+            // Swap function cells content
             function swapCells(a, b) {
                 var aContent = a.html();
                 var bContent = b.html();
