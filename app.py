@@ -35,9 +35,6 @@ def submit_question():
     # Call a function to categorize questions (this function needs to be implemented)
     categorized_questions = categorize_questions(spark, [(questions, None)])
 
-    print(type(categorized_questions))
-    print(categorized_questions)
-
     questions_list = categorized_questions.collect()
     questions_dict = [row.asDict() for row in questions_list]
 

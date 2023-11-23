@@ -2,17 +2,29 @@
 <html>
 <head>
     <title>Ask Questions</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>Ask Your Questions</h2>
-    <form method="post" action="/submit_question">
-        <label for="questions">Enter your questions:</label><br>
-        <textarea id="questions" name="questions" rows="10" cols="50"></textarea><br><br>
-        <input type="submit" value="Submit">
-    </form>
-    <div id="output"></div>
+    <body class="bg-gray-100">
+        <div class="container mx-auto p-6">
+            <h2 class="text-2xl font-semibold leading-tight text-gray-900">Ask Your Questions</h2>
+            <form id="question-form" method="post" action="/submit_question" class="mt-4">
+                <label for="questions" class="block text-sm font-medium text-gray-700">Enter your questions:</label>
+                <textarea id="questions" name="questions" rows="10" cols="50" class="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <input type="submit" id="submit-button" value="Submit" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            </form>
+            <div id="output" class="mt-6"></div>
+        </div>
+    </body>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        if (!window.jQuery) {
+            document.write('<script src="/static/jquery-3.7.1.min.js"><\/script>');
+        }
+    </script>
+
     <script>
         $(document).ready(function(){
             $('#submit-button').click(function(e){
@@ -22,7 +34,38 @@
                     type: 'POST',
                     data: $('#question-form').serialize(), // Serialize form data
                     success: function(response) {
-                        $('#output').html(JSON.stringify(response)); // Update the page with the response
+                        // Organize questions by category
+                        var categories = {};
+                        response.forEach(function(item) {
+                            if (!categories[item.category]) {
+                                categories[item.category] = [];
+                            }
+                            categories[item.category].push(item.question);
+                        });
+
+                        // Create table structure
+                        var table = '<table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
+                        for (var category in categories) {
+                            table += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">' + category + '</th>';
+                        }
+                        table += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+
+                        // Find the maximum number of questions in any category
+                        var maxQuestions = Math.max(...Object.values(categories).map(questions => questions.length));
+
+                        // Populate table with questions
+                        for (var i = 0; i < maxQuestions; i++) {
+                            table += '<tr>';
+                            for (var category in categories) {
+                                var question = categories[category][i] || ''; // Handle categories with fewer questions
+                                table += '<td>' + question + '</td>';
+                            }
+                            table += '</tr>';
+                        }
+                        table += '</tbody></table>';
+
+                        // Update the page with the table
+                        $('#output').html(table);
                     },
                     error: function(error) {
                         console.log(error);

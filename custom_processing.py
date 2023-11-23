@@ -74,8 +74,10 @@ def llama_2_categorize_questions(df: pd.DataFrame) -> pd.DataFrame:
 
     processed_answer = llama2_process(df, model_path, template)
 
+    data = extract_and_parse_json(processed_answer[0][0])
+
     return pd.DataFrame(
-            processed_answer,
+            data,
             columns=['question', 'category']
     )
 
