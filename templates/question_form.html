@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Ask Questions</title>
+        <title>Humanitas Oracle</title>
+
+        <!-- Tailwind CSS -->
         <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+        <!-- JQuery Libraries -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script>
             window.jQuery || document.write('<script src="/static/jquery-3.7.1.min.js"><\/script>');
@@ -11,9 +15,26 @@
         <script>
             window.jQuery.ui || document.write('<script src="/static/jquery-ui.min.js"><\/script>');
         </script>
+
+        <!-- Favicon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+        <link rel="manifest" href="/static/site.webmanifest">
+        <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="/static/favicon.ico">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="msapplication-config" content="browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+
     </head>
     <body class="bg-gray-100">
         <div class="container mx-auto p-6">
+            <div class="flex items-center justify-center mb-6">
+                <img src="/static/logo.png" alt="Logo" class="h-8 mr-3"> <!-- Logo to the left of the title -->
+                <h1 class="text-3xl font-semibold leading-tight text-gray-900">Humanitas distributed LLM Processing</h1>
+                <img src="/static/logo.png" alt="Logo" class="h-8 ml-3"> <!-- Logo to the right of the title -->
+            </div>
 
             <div class="flex flex-wrap -mx-3">
                 <!-- Question Form Column -->
