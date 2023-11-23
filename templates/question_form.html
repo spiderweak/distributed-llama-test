@@ -86,7 +86,11 @@
             </div>
 
             <div id="output" class="mt-6"></div>
-        </div>
+            <!-- Plus Button -->
+                <button id="add-row-btn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full mt-4 float-right hidden">
+                    +
+                </button>
+            </div>
 
         <script>
             // Makes cells dragabble and droppable
@@ -160,6 +164,7 @@
                             $('#output').html(table);
                             initDragAndDrop();
                             $('#loading-indicator').addClass('hidden'); // Hide the loading indicator
+                            $('#add-row-btn').removeClass('hidden')
                         },
                         error: function(error) {
                             console.log(error);
@@ -167,6 +172,17 @@
                         }
                     });
                 });
+
+                $('#add-row-btn').click(function() {
+                var newRow = '<tr>';
+                // Assuming each row has the same number of cells as the header
+                $('#output table thead th').each(function() {
+                    newRow += '<td class="border px-4 py-2 draggable">""</td>';
+                });
+                newRow += '</tr>';
+
+                $('#output table tbody').append(newRow);
+            });
             });
         </script>
     </body>
