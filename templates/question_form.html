@@ -14,12 +14,29 @@
     </head>
     <body class="bg-gray-100">
         <div class="container mx-auto p-6">
-            <h2 class="text-2xl font-semibold leading-tight text-gray-900">Ask Your Questions</h2>
-            <form id="question-form" method="post" action="/submit_question" class="mt-4">
-                <label for="questions" class="block text-sm font-medium text-gray-700">Enter your questions:</label>
-                <textarea id="questions" name="questions" rows="10" cols="50" class="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                <input type="submit" id="submit-button" value="Submit" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            </form>
+
+            <div class="flex flex-wrap -mx-3">
+                <!-- Question Form Column -->
+                <div class="w-full md:w-2/3 px-3 mb-6 md:mb-0">
+                    <h2 class="text-2xl font-semibold leading-tight text-gray-900">Ask Your Questions</h2>
+                    <form id="question-form" method="post" action="/submit_question" class="mt-4">
+                        <label for="questions" class="block text-sm font-medium text-gray-700">Enter your questions:</label>
+                        <textarea id="questions" name="questions" rows="10" cols="50" class="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        <input type="submit" id="submit-button" value="Submit" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    </form>
+                </div>
+
+                <!-- File Upload Form Column -->
+                <div class="w-full md:w-1/3 px-3">
+                    <h2 class="text-2xl font-semibold leading-tight text-gray-900">File Upload</h2>
+                    <form id="file-upload-form" method="post" action="/upload_files" enctype="multipart/form-data" class="mt-4">
+                        <label for="file-upload" class="block text-sm font-medium text-gray-700">Upload Files:</label>
+                        <input type="file" id="file-upload" name="files" multiple class="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <input type="submit" value="Upload Files" class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    </form>
+                </div>
+            </div>
+
             <div id="output" class="mt-6"></div>
         </div>
 
@@ -70,7 +87,7 @@
                             // Create table structure
                             var table = '<table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
                             for (var category in categories) {
-                                table += '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">' + category + '</th>';
+                                table += '<th class="border px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">' + category + '</th>';
                             }
                             table += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
 
@@ -82,7 +99,7 @@
                                 table += '<tr id="row-' + i + '" class="draggable">';
                                 for (var category in categories) {
                                     var question = categories[category][i] || '';// Handle categories with fewer questions
-                                    table += '<td>' + question + '</td>';
+                                    table += '<td class="border px-4 py-2">' + question + '</td>';
                                 }
                                 table += '</tr>';
                             }
