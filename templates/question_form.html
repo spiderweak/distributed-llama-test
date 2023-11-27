@@ -64,23 +64,29 @@
                 <span class="loader"></span>
                 <style>
                     .loader {
-                    width: 48px;
-                    height: 48px;
-                    border: 5px solid #000;
-                    border-bottom-color: #FF3D00;
-                    border-radius: 50%;
-                    display: inline-block;
-                    box-sizing: border-box;
-                    animation: rotation 1s linear infinite;
+                        width: 48px;
+                        height: 48px;
+                        border: 5px solid #000;
+                        border-bottom-color: #FF3D00;
+                        border-radius: 50%;
+                        display: inline-block;
+                        box-sizing: border-box;
+                        animation: rotation 1s linear infinite;
                     }
 
                     @keyframes rotation {
-                    0% {
-                        transform: rotate(0deg);
+                        0% {
+                            transform: rotate(0deg);
+                        }
+                        100% {
+                            transform: rotate(360deg);
+                        }
                     }
-                    100% {
-                        transform: rotate(360deg);
-                    }
+                    .drag-symbol {
+                        display: inline-block;
+                        margin-left: 4px;
+                        cursor: move; /* Cursor symbol indicating it's movable */
+                        vertical-align: middle; /* Align with the input field */
                     }
                 </style>
             </div>
@@ -151,10 +157,17 @@
 
                             // Populate table with questions
                             for (var i = 0; i < maxQuestions; i++) {
-                                table += '<tr id="row-' + i + '" class="draggable">';
+                                table += '<tr>';
                                 for (var category in categories) {
                                     var question = categories[category][i] || '';// Handle categories with fewer questions
-                                    table += '<td class="border px-4 py-2">' + question + '</td>';
+                                    table += `<td class="border px-4 py-2">
+                                                <div class="flex items-center md:w-7/10">
+                                                    <form>
+                                                        <input type="text" value="${question}" class="w-full"/>
+                                                    </form>
+                                                    <span class="drag-symbol md:w-1/10">⇅</span>
+                                                </div>
+                                            </td>`;
                                 }
                                 table += '</tr>';
                             }
@@ -177,7 +190,14 @@
                     var newRow = '<tr>';
                     // Assuming each row has the same number of cells as the header
                     $('#output table thead th').each(function() {
-                        newRow += '<td class="border px-4 py-2 draggable"></td>';
+                        newRow += `<td class="border px-4 py-2">
+                                <div class="flex items-center md:w-7/10">
+                                    <form>
+                                        <input type="text" value="" class="w-full"/>
+                                    </form>
+                                    <span class="drag-symbol md:w-1/10">⇅</span>
+                                </div>
+                            </td>`;
                     });
                     newRow += '</tr>';
 
